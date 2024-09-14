@@ -1,0 +1,50 @@
+name: semaphore
+services:
+    postgres:
+        restart: unless-stopped
+        image: postgres:16-alpine
+        container_name: postgres
+        hostname: postgres
+        network_mode: host
+        volumes:
+            - semaphore_psql:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_NAME}
+
+
+    semaphore:
+        container_name: semaphore
+        hostname: semaphore
+        network_mode: host
+        environment:
+            - SEMAPHORE_DB_DIALECT=postgres
+            - SEMAPHORE_DB_HOST=127.0.0.1
+            - SEMAPHORE_DB_USER=${DB_USER}
+            - SEMAPHORE_DB_PASS=${DB_PASSWORD}
+            - SEMAPHORE_DB=${DB_NAME}
+            - SEMAPHORE_DB_PORT=5432
+            - SEMAPHORE_ADMIN
+            - SEMAPHORE_ADMIN_PASSWORD
+            - SEMAPHORE_ADMIN_NAME
+            - SEMAPHORE_ADMIN_EMAIL
+
+        depends_on:
+            - postgres
+        volumes:
+            - semaphore_data:/var/lib/semaphore
+            - semaphore_config:/etc/semaphore
+            - semaphore_tmp:/tmp/semaphore
+        image: semaphoreui/semaphore:v2.10.22
+        restart: unless-stopped
+volumes:
+    semaphore_psql:
+        name:  semaphore-postgres
+    semaphore_data:
+        name: semaphore_data
+    semaphore_config:
+        name: semaphore_config
+    semaphore_tmp:
+        name: semaphore_tmp
+
