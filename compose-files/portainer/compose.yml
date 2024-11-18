@@ -1,0 +1,31 @@
+name: portainer
+
+volumes:
+  portainer_data:
+    name: portainer_data
+
+networks:
+  portainer:
+    name: portainer
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+services:
+  portainer:
+    image:  portainer/portainer-ce:latest
+    container_name: portainer
+    hostname: portainer
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+      - 9000:9000
+    volumes:
+      -  portainer_data:/data
+      -  /var/run/docker.sock:/var/run/docker.sock 
+    environment:
+      - TZ=America/New_York
+
+    networks:
+      portainer:
